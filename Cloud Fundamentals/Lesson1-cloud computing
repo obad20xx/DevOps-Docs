@@ -1,0 +1,110 @@
+Types of Cloud Computing
+-------------------------
+
+Infrastructure-as-a-Service (IaaS) ---> Rackspace
+The provider supplies virtual server instances, storage, and mechanisms for you to manage servers.
+
+Platform-as-a-Service (PaaS) ---> Godaddy
+A platform of development tools hosted on a provider's infrastructure.
+
+Software-as-a-Service (SaaS) ---> Gmail
+A software application that runs over the Internet and is managed by the service provider.
+
+------------------------------------------------------------------------------------------------------------
+
+Cloud Deployment Models
+-------------------------
+
+Public Cloud
+A public cloud makes resources available over the Internet to the general public.
+
+Private Cloud
+A private cloud is a proprietary network that supplies services to a limited number of people.
+
+Hybrid Cloud
+A hybrid model contains a combination of both a public and a private cloud.
+
+------------------------------------------------------------------------------------------------------------
+
+Cloud Benefits
+-------------------------
+
+Stop guessing about capacity.
+Avoid huge capital investments up front.
+Pay for only what you use.
+Scale globally in minutes.
+Deliver faster.
+
+------------------------------------------------------------------------------------------------------------
+
+AWS Services
+-------------------------
+
+    Analytics
+        Quick Sight
+        Athena
+        Redshift
+
+    Application integration
+        Simple Queue Service (SQS)
+        Simple Notification Service (SNS)
+
+    Cost management
+        AWS Budgets
+        
+    Compute services
+        Elastic Cloud Compute (EC2)
+        Lambda
+        Elastic Beanstalk
+
+    Database management services
+        MySQL
+        Oracle
+        SQLServer
+        DynamoDB
+        MongoDB
+
+    Developer tools
+        Cloud 9
+        Code Pipeline
+
+    Security services
+        Key Management Service (KMS)
+        Shield
+        Identity and Access Management (IAM)
+
+    Additional Services
+        Blockchain
+        Machine Learning
+        Computer Vision
+        Internet of Things (IoT)
+        AR/VR
+
+------------------------------------------------------------------------------------------------------------
+
+Global Infrastructure
+-------------------------
+
+    Region
+        A region is considered a geographic location or an area on a map.
+
+    Availability Zone
+        An availability zone is an isolated location within a geographic region and is a physical data center within a specific region.
+
+    Edge Location
+        An edge location is as a mini-data center used solely to cache large data files closer to a user's location.
+
+    Additional Information
+        There are more Availability Zones (AZs) than there are Regions.
+        There should be at least two AZs per Region.
+        Each region is located in a separate geographic area.
+        AZs are distinct locations that are engineered to be isolated from failures.
+
+------------------------------------------------------------------------------------------------------------
+
+Shared Responsibility Model
+-------------------------
+
+    AWS is responsible for security OF the cloud, we are responsible for security IN the cloud.
+
+Lisson2-Foundational & Compute Service
