@@ -1,0 +1,71 @@
+Cloud Trail
+-------------------------
+
+    Cloud Trail allows you to audit (or review) everything that occurs in your AWS account. Cloud Trail does this by recording all the AWS API calls occurring in your account and delivering a log file to you.
+    
+    Features
+    CloudTrail provides event history of your AWS account activity, including:
+        who has logged in
+        services that were accessed
+        actions performed
+        parameters for the actions
+        responses returned
+        This includes actions taken through the AWS Management Console, AWS SDKs, command line tools, and other AWS services.
+
+    Tips
+        Cloud Trail is found under the Management & Governance section on the AWS Management Console.
+        CloudTrail shows results for the last 90 days.
+        You can create up to five trails in an AWS region.
+
+------------------------------------------------------------------------------------------------------------
+
+Cloud Watch
+-------------------------
+
+    Cloud Watch is a service that monitors resources and applications that run on AWS by collecting data in the form of logs, metrics, and events.
+
+    Features
+        There are several useful features:
+        Collect and track metrics
+        Collect and monitor log files
+        Set alarms and create triggers to run your AWS resources
+        React to changes in your AWS resources
+
+    Tips
+        CloudWatch is found under the Management & Governance section on the AWS Management Console.
+        Metrics are provided automatically for a number of AWS products and services.
+
+------------------------------------------------------------------------------------------------------------
+
+Cloud Formation
+-------------------------
+
+    AWS Cloud Formation allows you to model your entire infrastructure in a text file template allowing you to provision AWS resources based on the scripts you write.
+
+    Tips
+        Cloud Formation is found under the Management & Governance section on the AWS Management Console.
+        Cloud Formation templates are written using JSON or YAML.
+        You can still individually manage AWS resources that are part of a CloudFormation stack.
+
+    EX:
+        {
+        "AWSTemplateFormatVersion": "2010-09-09",
+        "Description": "Basic S3 Bucket CloudFormation template",
+        "Resources": {
+        "S3BucketCreatedByCloudFormation": {
+        "Type": "AWS::S3::Bucket",
+        "DeletionPolicy": "Delete",
+        "Properties": {
+        "AccessControl": "PublicRead"
+        }
+        }
+        },
+        "Outputs": {
+        "BucketName": {
+        "Value": {
+        "Ref": "S3BucketCreatedByCloudFormation"
+        },
+        "Description": "Name of the newly created Amazon S3 Bucket"
+        }
+        }
+        }
