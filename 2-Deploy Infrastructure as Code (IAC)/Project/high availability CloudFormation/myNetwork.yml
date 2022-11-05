@@ -1,0 +1,261 @@
+Description: >
+    Abdallah Mohamed
+    This template deploys a VPC, with a pair of public and private subnets spread 
+    across two Availabilty Zones. It deploys an Internet Gateway, with a default 
+    route on the public subnets. It deploys a pair of NAT Gateways , 
+    and default routes for them in the private subnets.
+
+Parameters:
+
+    MyEnv:
+        Type: String
+
+    MyVPC: 
+        Description: VPC with range 11.0.0.0/16
+        Type: String
+        Default: 5.0.0.0/16
+
+    PublicSubnet1:
+        Description: public subnet with range 11.0.0.0/24 at Availability Zone 1
+        Type: String
+        Default: 5.0.1.0/24
+
+    PublicSubnet2:
+        Description: public subnet with range 11.0.1.0/24 at Availability Zone 2
+        Type: String
+        Default: 5.0.2.0/24
+
+    PrivateSubnet1:
+        Description: Private subnet with range 11.0.2.0/24 at Availability Zone 1
+        Type: String
+        Default: 5.0.3.0/24
+
+    PrivateSubnet2:
+        Description: Private subnet with range 11.0.3.0/24 at Availability Zone 2
+        Type: String
+        Default: 5.0.4.0/24
+
+Resources:
+
+  MyVPCR: 
+      Type: AWS::EC2::VPC
+      Properties:
+          CidrBlock: !Ref MyVPC
+          EnableDnsHostnames: true
+          Tags: 
+              - Key: Name 
+                Value: !Ref MyEnv
+
+  MyInternetGatewayR:
+          Type: AWS::EC2::InternetGateway
+          Properties:
+              Tags:
+                  - Key: Name
+                    Value: !Ref MyEnv
+            
+  MyInternetGatewayAttachmentR:
+      Type: AWS::EC2::VPCGatewayAttachment
+      Properties:
+          InternetGatewayId: !Ref MyInternetGatewayR
+          VpcId: !Ref MyVPCR
+
+  PublicSubnet1R: 
+        Type: AWS::EC2::Subnet
+        Properties:
+            VpcId: !Ref MyVPCR
+            AvailabilityZone: !Select [ 0, !GetAZs '' ]
+            CidrBlock: !Ref PublicSubnet1
+            MapPublicIpOnLaunch: true
+            Tags: 
+                - Key: Name 
+                  Value: !Sub ${MyEnv} Public Subnet (AZ1)
+
+  PublicSubnet2R: 
+        Type: AWS::EC2::Subnet
+        Properties:
+            VpcId: !Ref MyVPCR
+            AvailabilityZone: !Select [ 1, !GetAZs '' ]
+            CidrBlock: !Ref PublicSubnet2
+            MapPublicIpOnLaunch: true
+            Tags: 
+                - Key: Name 
+                  Value: !Sub ${MyEnv} Public Subnet (AZ2)
+
+  PrivateSubnet1R: 
+        Type: AWS::EC2::Subnet
+        Properties:
+            VpcId: !Ref MyVPCR
+            AvailabilityZone: !Select [ 0, !GetAZs '' ]
+            CidrBlock: !Ref PrivateSubnet1
+            MapPublicIpOnLaunch: false
+            Tags: 
+                - Key: Name 
+                  Value: !Sub ${MyEnv} Private Subnet (AZ1)
+
+  PrivateSubnet2R: 
+        Type: AWS::EC2::Subnet
+        Properties:
+            VpcId: !Ref MyVPCR
+            AvailabilityZone: !Select [ 1, !GetAZs '' ]
+            CidrBlock: !Ref PrivateSubnet2
+            MapPublicIpOnLaunch: false
+            Tags: 
+                - Key: Name 
+                  Value: !Sub ${MyEnv} Private Subnet (AZ2)
+
+  staticIP1R:
+        Type: AWS::EC2::EIP
+        DependsOn: MyInternetGatewayAttachmentR
+        Properties: 
+            Domain: vpc
+
+  staticIP2R:
+      Type: AWS::EC2::EIP
+      DependsOn: MyInternetGatewayAttachmentR
+      Properties:
+          Domain: vpc
+
+  NatGateway1R: 
+        Type: AWS::EC2::NatGateway
+        Properties: 
+            AllocationId: !GetAtt staticIP1R.AllocationId
+            SubnetId: !Ref PublicSubnet1R
+  
+  NatGateway2R: 
+        Type: AWS::EC2::NatGateway
+        Properties: 
+            AllocationId: !GetAtt staticIP2R.AllocationId
+            SubnetId: !Ref PublicSubnet2R
+
+  PublicRouteTableR:
+        Type: AWS::EC2::RouteTable
+        Properties: 
+            VpcId: !Ref MyVPCR
+            Tags: 
+                - Key: Name 
+                  Value: !Sub ${MyEnv} Public Routes (AZ 1 & 2)
+
+  DefaultPublicRouteR: 
+      Type: AWS::EC2::Route
+      DependsOn: MyInternetGatewayAttachmentR
+      Properties: 
+          RouteTableId: !Ref PublicRouteTableR
+          DestinationCidrBlock: 0.0.0.0/0
+          GatewayId: !Ref MyInternetGatewayR
+
+  PublicSubnet1RouteTableAssociationR:
+      Type: AWS::EC2::SubnetRouteTableAssociation
+      Properties:
+          RouteTableId: !Ref PublicRouteTableR
+          SubnetId: !Ref PublicSubnet1R
+
+  PublicSubnet2RouteTableAssociationR:
+      Type: AWS::EC2::SubnetRouteTableAssociation
+      Properties:
+          RouteTableId: !Ref PublicRouteTableR
+          SubnetId: !Ref PublicSubnet2R
+
+
+  PrivateRouteTable1R:
+      Type: AWS::EC2::RouteTable
+      Properties: 
+          VpcId: !Ref MyVPCR
+          Tags: 
+              - Key: Name 
+                Value: !Sub ${MyEnv} Private Routes (AZ1)
+
+  DefaultPrivateRoute1R:
+      Type: AWS::EC2::Route
+      Properties:
+          RouteTableId: !Ref PrivateRouteTable1R
+          DestinationCidrBlock: 0.0.0.0/0
+          NatGatewayId: !Ref NatGateway1R
+
+  PrivateSubnet1RouteTableAssociationR:
+      Type: AWS::EC2::SubnetRouteTableAssociation
+      Properties:
+          RouteTableId: !Ref PrivateRouteTable1R
+          SubnetId: !Ref PrivateSubnet1R
+
+  PrivateRouteTable2R:
+      Type: AWS::EC2::RouteTable
+      Properties: 
+          VpcId: !Ref MyVPCR
+          Tags: 
+              - Key: Name 
+                Value: !Sub ${MyEnv} Private Routes (AZ2)
+
+  DefaultPrivateRoute2R:
+      Type: AWS::EC2::Route
+      Properties:
+          RouteTableId: !Ref PrivateRouteTable2R
+          DestinationCidrBlock: 0.0.0.0/0
+          NatGatewayId: !Ref NatGateway2R
+
+  PrivateSubnet2RouteTableAssociationR:
+      Type: AWS::EC2::SubnetRouteTableAssociation
+      Properties:
+          RouteTableId: !Ref PrivateRouteTable2R
+          SubnetId: !Ref PrivateSubnet2R
+
+Outputs: 
+
+  VPCO: 
+      Description: A reference to the created VPC
+      Value: !Ref MyVPCR
+      Export:
+        Name: !Sub ${MyEnv}-MyVPCR
+
+  MyVPCPublicRouteTableO:
+      Description: Public Routing
+      Value: !Ref PublicRouteTableR
+      Export:
+        Name: !Sub ${MyEnv}-PUB-RT
+
+  MyVPCPrivateRouteTable1O:
+      Description: Private Routing AZ1
+      Value: !Ref PrivateRouteTable1R
+      Export:
+        Name: !Sub ${MyEnv}-PRI1-RT
+
+  MyVPCPrivateRouteTable2O:
+      Description: Private Routing AZ2
+      Value: !Ref PrivateRouteTable2R
+      Export:
+        Name: !Sub ${MyEnv}-PRI2-RT
+
+  PublicSubnetsO:
+      Description: A list of the public subnets
+      Value: !Join [ ",", [ !Ref PublicSubnet1R, !Ref PublicSubnet2R ]]
+      Export:
+        Name: !Sub ${MyEnv}-PUB-NETS
+
+  PrivateSubnetsO:
+      Description: A list of the private subnets
+      Value: !Join [ ",", [ !Ref PrivateSubnet1R, !Ref PrivateSubnet2R ]]
+      Export:
+        Name: !Sub ${MyEnv}-PRIV-NETS
+
+  PublicSubnet1O:
+      Description: A reference to the public subnet in the 1st Availability Zone
+      Value: !Ref PublicSubnet1R
+      Export:
+        Name: !Sub ${MyEnv}-PUB1-SN
+
+  PublicSubnet2O: 
+      Description: A reference to the public subnet in the 2nd Availability Zone
+      Value: !Ref PublicSubnet2R
+      Export:
+        Name: !Sub ${MyEnv}-PUB2-SN
+
+  PrivateSubnet1O:
+      Description: A reference to the private subnet in the 1st Availability Zone
+      Value: !Ref PrivateSubnet1R
+      Export:
+        Name: !Sub ${MyEnv}-PRI1-SN
+
+  PrivateSubnet2O: 
+      Description: A reference to the private subnet in the 2nd Availability Zone
+      Value: !Ref PrivateSubnet2R
+      Export:
+        Name: !Sub ${MyEnv}-PRI2-SN

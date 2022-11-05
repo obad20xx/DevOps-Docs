@@ -1,0 +1,2 @@
+aws cloudformation create-stack --stack-name Proj2-servers --template-body file://my_servers.yml  --parameters file://serversParam.json --region=us-east-1
+aws cloudformation create-stack --stack-name Proj2 --template-body file://myNetwork.yml  --parameters file://myNetworkParam.json --region=us-east-1s
