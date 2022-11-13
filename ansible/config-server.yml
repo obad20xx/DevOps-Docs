@@ -1,0 +1,10 @@
+---
+# Exercise: Define Ansible Playbook
+- name: Exercise 
+  hosts: ContOS
+  remote_user: root
+  become: true
+  become_method: sudo
+  gather_facts: false
+  roles:
+   - print
